@@ -1,0 +1,9 @@
+{
+  "benchmark": "Levine 2007 finite-rate RyhB/sodB steady-state response",
+  "alpha_s_nM_min": 1.0,
+  "alpha_m_min_nM_min": 0.05,
+  "alpha_m_max_nM_min": 3.0,
+  "max_absolute_mrna_error_nM": 1.0426598820445498e-10,
+  "max_relative_mrna_error_with_1e-6_uM_floor": 7.752435947423014e-10,
+  "interpretation": "Implementation benchmark only: agreement with the analytical steady state does not constitute independent wet-lab validation."
+}

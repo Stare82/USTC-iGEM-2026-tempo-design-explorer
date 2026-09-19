@@ -1,0 +1,12 @@
+TEMPO Modeling Platform / Design Explorer
+Copyright 2026 USTC iGEM Team contributors
+
+This product is licensed under the Apache License, Version 2.0. A copy of the
+license is included in the LICENSE file.
+
+The Apache License does not grant permission to use the USTC iGEM team name,
+the TEMPO name, or associated logos to imply endorsement. They may be used
+factually to identify the origin of this project.
+
+Third-party Python packages are installed at deployment time and remain under
+their respective licenses. See THIRD_PARTY_NOTICES.md.

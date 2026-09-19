@@ -1,0 +1,12 @@
+{
+  "source": "C:\\Users\\ASUS\\Desktop\\sRNA\\rdfmodel_new\\docs\\week4_unloaded\\unloaded_C31_translation_trajectory.csv",
+  "copies_per_uM": 602.0,
+  "rows": 6001,
+  "start_h": 0.0,
+  "end_h": 100.0,
+  "c31_min_uM": 0.0,
+  "c31_max_uM": 7.008866813216433,
+  "translation_flux_min_uM_h": 0.0359678374147556,
+  "translation_flux_max_uM_h": 6.639270640730661,
+  "note": "Frozen input distributed with rdfmodel_new. C31 protein concentration is retained for diagnostics only; the counter is driven by the translation-production flux."
+}

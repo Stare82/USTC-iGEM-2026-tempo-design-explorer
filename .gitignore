@@ -1,0 +1,40 @@
+# Python caches and local environments
+**/__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.env
+.env.*
+
+# Test and editor state
+.pytest_cache/
+.coverage
+htmlcov/
+.idea/
+.vscode/
+*.swp
+*.tmp
+Thumbs.db
+.DS_Store
+
+# Build and document intermediates
+*.aux
+*.out
+*.zip
+
+# Generated scientific outputs are reproducible and should not be committed.
+oscillator/outputs/
+rdfmodel_new/outputs/
+shutdown_model/outputs/
+**/tmp/
+
+# Local exports and logs
+tempo-design-explorer/exports/
+*.log
+
+# Downloaded literature used during research is not redistributed. The team's
+# own Markdown synthesis reports in this directory remain tracked.
+rdfmodel_new/调研_降解标签/*.html
+rdfmodel_new/调研_降解标签/*.xml
+rdfmodel_new/调研_降解标签/*.txt

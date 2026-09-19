@@ -1,0 +1,38 @@
+name: Model smoke test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deterministic-model:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13.9"
+          cache: pip
+          cache-dependency-path: tempo-design-explorer/requirements.txt
+
+      - name: Install runtime dependencies
+        run: python -m pip install -r tempo-design-explorer/requirements.txt
+
+      - name: Compile Python entry points
+        run: >-
+          python -m py_compile
+          tempo-design-explorer/server.py
+          tempo-design-explorer/backend/model_adapter.py
+          tempo-design-explorer/tests/test_deployment_smoke.py
+
+      - name: Run deterministic deployment smoke test
+        run: python tempo-design-explorer/tests/test_deployment_smoke.py

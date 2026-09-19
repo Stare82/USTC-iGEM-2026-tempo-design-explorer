@@ -1,0 +1,335 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Interactive TEMPO design explorer for oscillator, recombinase counter, and timed shutdown dynamics."
+    />
+    <title>TEMPO Design Explorer</title>
+    <link rel="icon" type="image/png" href="./public/tempo-logo.png" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#workspace">Skip to design workspace</a>
+
+    <header class="topbar">
+      <div class="brand" aria-label="TEMPO Design Explorer">
+        <img class="brand-logo" src="./public/tempo-logo.png" alt="" />
+        <div>
+          <strong>TEMPO</strong>
+          <span>Design Explorer</span>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button class="icon-button" id="about-button" aria-label="About this prototype" title="About this prototype">i</button>
+        <span class="model-badge" id="model-badge"><i></i><span id="model-status">Checking model…</span></span>
+      </div>
+    </header>
+
+    <main id="workspace" class="workspace">
+      <aside class="control-panel" aria-label="Design parameters">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Design input</p>
+            <h1>Parameter control</h1>
+          </div>
+          <button class="text-button" id="reset-button">Reset</button>
+        </div>
+
+        <div class="segmented" role="group" aria-label="Parameter mode">
+          <button class="active" data-mode="basic">Basic</button>
+          <button data-mode="advanced">Advanced</button>
+        </div>
+        <p class="mode-description" id="mode-description">
+          Four core decisions: period, C31 input, Integrase reset and shutdown strength.
+        </p>
+
+        <label class="select-field">
+          <span>Design preset</span>
+          <select id="preset-select">
+            <option value="custom" hidden>Custom design</option>
+            <option value="tempo">TEMPO reference</option>
+            <option value="stable">Stable counting</option>
+            <option value="fast">Fast switching</option>
+            <option value="long">Long output window</option>
+            <option value="short">Short output window</option>
+          </select>
+          <small class="preset-description" id="preset-description">Certified K4 baseline with the reference counter and shutdown settings.</small>
+        </label>
+
+        <section class="tuning-guide" id="tuning-guide" aria-labelledby="tuning-guide-title" aria-live="polite" hidden>
+          <div class="tuning-guide-heading">
+            <div>
+              <p class="eyebrow">Next adjustment</p>
+              <h2 id="tuning-guide-title">Suggested adjustment</h2>
+            </div>
+            <button type="button" class="tuning-guide-toggle" id="tuning-guide-toggle" aria-expanded="false" hidden>Show details</button>
+          </div>
+          <p class="tuning-guide-copy">Start with the first item, then let the model settle before changing another control.</p>
+          <div class="tuning-suggestions" id="tuning-suggestions"></div>
+        </section>
+
+        <section class="control-group" aria-labelledby="oscillator-controls">
+          <div class="group-title">
+            <span class="stage-index cyan">01</span>
+            <div>
+              <h2 id="oscillator-controls">Oscillator</h2>
+              <p>K1–K5 map to the certified RBS + oscillator mRNA half-life library; realized values are measured from the ODE.</p>
+            </div>
+          </div>
+
+          <div class="period-picker">
+            <div class="period-picker-heading">
+              <b>Period setting</b>
+              <output id="period-output">K4 · 9.35 h</output>
+            </div>
+            <input id="period" class="visually-hidden" type="range" min="1" max="5" step="1" value="4" tabindex="-1" aria-hidden="true" />
+            <div class="knob-library" role="group" aria-label="Certified period settings">
+              <button type="button" data-period-setting="1"><strong>K1 <span>6.05 h</span></strong><small>RBS 0.60× · mRNA 1.0 min</small></button>
+              <button type="button" data-period-setting="2"><strong>K2 <span>6.93 h</span></strong><small>RBS 0.80× · mRNA 1.0 min</small></button>
+              <button type="button" data-period-setting="3"><strong>K3 <span>8.14 h</span></strong><small>RBS 1.20× · mRNA 1.0 min</small></button>
+              <button type="button" data-period-setting="4" class="active"><strong>K4 <span>9.35 h</span></strong><small>RBS 1.20× · mRNA 1.5 min</small><em>Certified at tag 8 / 12</em></button>
+              <button type="button" data-period-setting="5"><strong>K5 <span>10.45 h</span></strong><small>RBS 0.60× · mRNA 4.0 min</small><em>Certified at tag 12</em></button>
+            </div>
+          </div>
+
+          <label class="range-field advanced-only" hidden>
+            <span><b>C31 pulse-width target</b><output id="pulse-width-output">3.6 h</output></span>
+            <input id="pulse-width" type="range" min="1.5" max="5.5" step="0.1" value="3.6" />
+            <small><span>Narrow</span><span>Broad</span></small>
+          </label>
+
+          <div class="advanced-only advanced-grid" hidden>
+            <label class="range-field">
+              <span><b>Oscillator promoter scale</b><output id="promoter-output">1.00×</output></span>
+              <input id="promoter" type="range" min="0.5" max="1.5" step="0.05" value="1" />
+              <small><span>0.50×</span><span>1.50×</span></small>
+            </label>
+            <label class="range-field">
+              <span><b>Oscillator RBS scale</b><output id="osc-rbs-output">1.00×</output></span>
+              <input id="osc-rbs" type="range" min="0.5" max="1.5" step="0.05" value="1" />
+              <small><span>0.50×</span><span>1.50×</span></small>
+            </label>
+          </div>
+        </section>
+
+        <section class="control-group" aria-labelledby="counter-controls">
+          <div class="group-title">
+            <span class="stage-index amber">02</span>
+            <div>
+              <h2 id="counter-controls">Counter interface</h2>
+              <p>Tunes whether each pulse becomes one complete DNA flip.</p>
+            </div>
+          </div>
+
+          <label class="range-field">
+            <span><b>C31 RBS strength</b><output id="c31-output">0.45×</output></span>
+            <input id="c31" type="range" min="0.3" max="0.8" step="0.01" value="0.45" />
+            <small><span>Weak</span><span>Strong</span></small>
+          </label>
+
+          <label class="range-field">
+            <span><b>Integrase degradation</b><output id="degradation-output">8.0 h⁻¹</output></span>
+            <input id="degradation" type="range" min="2.8" max="28" step="0.2" value="8" />
+            <small><span>Slow tag</span><span>Fast tag</span></small>
+          </label>
+
+          <label class="range-field advanced-only" hidden>
+            <span><b>RDF expression</b><output id="rdf-output">1.00×</output></span>
+            <input id="rdf" type="range" min="0.4" max="1.7" step="0.05" value="1" />
+            <small><span>Weak</span><span>Strong</span></small>
+          </label>
+        </section>
+
+        <section class="control-group" aria-labelledby="shutdown-controls">
+          <div class="group-title">
+            <span class="stage-index coral">03</span>
+            <div>
+              <h2 id="shutdown-controls">Timed shutdown</h2>
+              <p>Shapes the output pulse after the target state is reached.</p>
+            </div>
+          </div>
+
+          <label class="range-field advanced-only" hidden>
+            <span><b>BM3R1 expression</b><output id="bm3r1-output">1.00×</output></span>
+            <input id="bm3r1" type="range" min="0.4" max="1.8" step="0.05" value="1" />
+            <small><span>Weak</span><span>Strong</span></small>
+          </label>
+
+          <label class="range-field">
+            <span><b>sRNA production</b><output id="srna-output">0.060 μM/h</output></span>
+            <input id="srna" type="range" min="0.02" max="0.1" step="0.002" value="0.06" />
+            <small><span>0.02</span><span>0.10 μM/h</span></small>
+          </label>
+        </section>
+      </aside>
+
+      <section class="visual-panel" aria-label="Dynamic visualization">
+        <div class="visual-header">
+          <div>
+            <p class="eyebrow">Live system response</p>
+            <h2>Oscillation → counting → shutdown</h2>
+            <span class="update-indicator" id="update-indicator" role="status" aria-live="polite" hidden>Updating model…</span>
+          </div>
+          <div class="time-control">
+            <div class="time-control-copy">
+              <b>Simulation window</b>
+              <span>How long the model runs and displays; circuit settings stay unchanged.</span>
+            </div>
+            <div class="time-window" role="group" aria-label="Simulation window in hours">
+              <button data-hours="36" title="Solve and display the first 36 hours">36 h</button>
+              <button data-hours="60" class="active" title="Solve and display the first 60 hours">60 h</button>
+              <button data-hours="84" title="Solve and display the first 84 hours">84 h</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="normalization-note"><b>Normalized scale:</b> each chart runs from 0 to its own maximum. Compare timing and shape, not absolute concentration between charts.</p>
+
+        <div class="causal-strip" aria-label="Current signal flow">
+          <div><span class="signal-dot cyan"></span><b id="pulse-count">6</b><small>input pulses</small></div>
+          <i>→</i>
+          <div><span class="signal-dot amber"></span><b id="flip-count">5</b><small>complete flips</small></div>
+          <i>→</i>
+          <div><span class="signal-dot coral"></span><b id="output-count">3</b><small>output windows</small></div>
+        </div>
+
+        <article class="chart-card">
+          <div class="chart-heading">
+            <div>
+              <span class="chart-number">01</span>
+              <div><h3>Input &amp; protein dynamics</h3><p>C31 pulses are translated into Integrase and delayed RDF.</p></div>
+            </div>
+            <div class="legend" aria-label="Chart legend">
+              <span><i class="chart-integrase"></i>Integrase</span>
+              <span><i class="chart-rdf"></i>RDF</span>
+              <span><i class="chart-input"></i>C31 input</span>
+            </div>
+          </div>
+          <div class="chart" id="protein-chart" role="img" aria-label="Integrase, RDF and C31 input over time"></div>
+        </article>
+
+        <article class="chart-card counter-card">
+          <div class="chart-heading">
+            <div>
+              <span class="chart-number">02</span>
+              <div><h3>Recombinase counter state</h3><p>DNA state should cross once and settle before the next pulse.</p></div>
+            </div>
+            <div class="legend" aria-label="Chart legend">
+              <span><i class="chart-lr"></i>LR fraction</span>
+              <span><i class="chart-pb"></i>PB fraction</span>
+            </div>
+          </div>
+          <div class="chart" id="counter-chart" role="img" aria-label="PB and LR DNA fractions over time"></div>
+          <div class="state-rail" id="state-rail" aria-label="Counter states"></div>
+        </article>
+
+        <article class="chart-card output-card">
+          <div class="chart-heading">
+            <div>
+              <span class="chart-number">03</span>
+              <div><h3>Timed output &amp; shutdown</h3><p>Target production turns on in LR and is curtailed by the sRNA branch.</p></div>
+            </div>
+            <div class="legend" aria-label="Chart legend">
+              <span><i class="chart-output"></i>Output</span>
+              <span><i class="chart-srna"></i>sRNA</span>
+            </div>
+          </div>
+          <div class="chart" id="output-chart" role="img" aria-label="Output protein and shutdown sRNA over time"></div>
+        </article>
+      </section>
+
+      <aside class="evaluation-panel" aria-label="Design evaluation">
+        <div class="evaluation-heading">
+          <div>
+            <p class="eyebrow">Result</p>
+            <h2 id="verdict-title">Within design window</h2>
+          </div>
+          <div class="score-summary" id="score-summary">
+            <div class="score-label">
+              <span>Heuristic score</span>
+              <span class="score-help">
+                <button class="score-help-button" type="button" aria-label="How the reference score is calculated" aria-describedby="score-tooltip">?</button>
+                <span class="score-tooltip" id="score-tooltip" role="tooltip">
+                  Reference only. These manually assigned weights have not been calibrated against experimental outcomes.
+                </span>
+              </span>
+            </div>
+            <div id="score-ring" class="score-ring" aria-label="Reference-only heuristic score 92 out of 100">
+              <strong id="score-value">92</strong><span>/100</span>
+            </div>
+            <small class="score-reference">Reference only</small>
+            <span class="score-waiting" aria-hidden="true">Waiting…</span>
+          </div>
+        </div>
+
+        <p class="score-rule" id="score-rule" hidden>The reference-only heuristic score is high, but the verdict still requires every core check to pass.</p>
+
+        <div id="verdict-banner" class="verdict-banner success">
+          <span class="verdict-icon">✓</span>
+          <p id="verdict-copy">This design is predicted to separate consecutive flips and close the output window.</p>
+        </div>
+
+        <div class="result-summary" id="model-facts" hidden>
+          <div class="result-stat">
+            <span>Realized period</span>
+            <b id="realized-period">—</b>
+          </div>
+          <div class="result-stat">
+            <span>Pulse width</span>
+            <b id="realized-width">—</b>
+          </div>
+          <div class="certification-card" id="certification-card">
+            <span>A→B certification</span>
+            <b id="certification-status">Checking…</b>
+          </div>
+        </div>
+
+        <section class="key-results" aria-labelledby="key-results-title">
+          <h3 id="key-results-title">Key outcomes</h3>
+          <div class="key-result-grid">
+            <div><span>Flip fidelity</span><strong id="flip-success">98%</strong></div>
+            <div><span>Recovers in time</span><strong id="recovery-status" class="status success">Yes</strong></div>
+            <div><span>Output window</span><strong id="duration-time">4.3 h</strong></div>
+            <div><span>Residual output</span><strong id="residual-value">7%</strong></div>
+          </div>
+        </section>
+
+        <section class="diagnostic" aria-labelledby="diagnostic-title">
+          <div class="diagnostic-heading">
+            <h3 id="diagnostic-title">Why this result</h3>
+            <span id="diagnostic-count">1 note</span>
+          </div>
+          <div id="diagnostic-items"></div>
+        </section>
+
+        <div class="evaluation-footer">
+          <p id="model-scope-copy" class="visually-hidden"><b>Loading model status.</b></p>
+          <button id="export-button" class="primary-button">Export design summary</button>
+        </div>
+      </aside>
+    </main>
+
+    <dialog id="about-dialog">
+      <form method="dialog">
+        <button class="dialog-close" aria-label="Close">×</button>
+        <p class="eyebrow">Prototype model</p>
+        <h2>Fast feedback with explicit model provenance</h2>
+        <p>
+          When opened through the TEMPO local server, the page solves the existing 8-state oscillator,
+          38-state counter, and 3-state shutdown equations. If that service is unavailable, the page
+          switches to a visibly labelled browser surrogate so the controls remain explorable.
+        </p>
+        <div class="dialog-grid">
+          <div><b>Deterministic ODE</b><span>Python/SciPy LSODA, full named observables, K1–K5 provenance and certification boundary retained.</span></div>
+          <div><b>Fallback mode</b><span>Approximate browser curves for interface use only; never presented as ODE output.</span></div>
+        </div>
+      </form>
+    </dialog>
+
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

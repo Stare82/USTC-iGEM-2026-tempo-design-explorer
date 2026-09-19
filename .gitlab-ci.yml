@@ -1,0 +1,23 @@
+image: python:3.13-slim
+
+stages:
+  - test
+
+variables:
+  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
+  MPLBACKEND: "Agg"
+
+cache:
+  key: "$CI_COMMIT_REF_SLUG-pip"
+  paths:
+    - .cache/pip
+
+model-smoke-test:
+  stage: test
+  before_script:
+    - python -m pip install --upgrade pip
+    - python -m pip install -r tempo-design-explorer/requirements.txt
+  script:
+    - python -m py_compile tempo-design-explorer/server.py tempo-design-explorer/backend/model_adapter.py
+    - python tempo-design-explorer/tests/test_deployment_smoke.py
+
