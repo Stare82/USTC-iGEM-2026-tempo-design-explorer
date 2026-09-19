@@ -313,6 +313,7 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; border: 2px s
 
 .visual-panel { min-width: 0; padding: 1.4rem; background: #f0f2f1; }
 .visual-header { align-items: flex-start; margin-bottom: 1rem; }
+.model-update-row { display: flex; flex-wrap: wrap; align-items: center; gap: .55rem; }
 .update-indicator {
   display: inline-flex;
   align-items: center;
@@ -329,6 +330,17 @@ input[type="range"]::-moz-range-thumb { width: 10px; height: 10px; border: 2px s
   letter-spacing: 0.01em;
 }
 .update-indicator::before { width: 10px; height: 10px; content: ""; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 4px rgba(240,106,47,.12); animation: update-pulse 1s ease-in-out infinite alternate; }
+.model-run-button {
+  padding: .55rem .72rem;
+  margin-top: .62rem;
+  border: 1px solid var(--cyan-deep);
+  border-radius: 6px;
+  color: var(--cyan-deep);
+  background: #fff;
+  font-size: .82rem;
+  font-weight: 750;
+}
+.model-run-button:hover, .model-run-button:focus-visible { color: #fff; background: var(--cyan-deep); }
 .time-control { display: flex; align-items: center; justify-content: flex-end; gap: 0.8rem; }
 .time-control-copy { max-width: 250px; display: grid; text-align: right; }
 .time-control-copy b { font-size: 0.85rem; }

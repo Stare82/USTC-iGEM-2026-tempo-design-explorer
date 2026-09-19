@@ -79,6 +79,7 @@ let odeTimer;
 let requestRevision = 0;
 let odeInFlight = false;
 let odeQueued = false;
+let designDirty = false;
 
 const byId = (id) => document.getElementById(id);
 
@@ -245,20 +246,40 @@ function setModelStatus(mode, metadata = null) {
   const scope = byId("model-scope-copy");
   const certificationCard = byId("certification-card");
   const certificationStatus = byId("certification-status");
-  const updating = mode === "loading";
+  const indicator = byId("update-indicator");
+  const runButton = byId("run-model-button");
+  const updating = mode === "loading" || mode === "queued";
   document.body.classList.toggle("model-updating", updating);
   byId("workspace").setAttribute("aria-busy", String(updating));
   byId("score-summary").setAttribute("aria-busy", String(updating));
-  byId("update-indicator").hidden = !updating;
+  indicator.hidden = !["pending", "queued", "loading", "error"].includes(mode);
+  runButton.hidden = !["pending", "error"].includes(mode);
+  if (mode === "pending") {
+    status.textContent = "Parameters changed · result not updated";
+    indicator.textContent = odeInFlight
+      ? "Current solve is finishing · latest changes are pending"
+      : "Parameters changed · release the control or run the latest design";
+    scope.innerHTML = "<b>Preview only.</b> The controls have changed, but these values are not yet a completed Python ODE result.";
+    return;
+  }
+  if (mode === "queued") {
+    const knob = getPeriodKnob(params.period);
+    status.textContent = `${knob.id} queued · waiting for current solve`;
+    indicator.textContent = `Latest ${knob.id} design queued · it will run next`;
+    scope.innerHTML = "<b>Queued.</b> The current solve must finish before the latest controls can enter the SciPy model.";
+    return;
+  }
   if (mode === "loading") {
-    status.textContent = "Solving coupled ODE…";
+    const knob = getPeriodKnob(params.period);
+    status.textContent = `Solving ${knob.id} coupled ODE…`;
+    indicator.textContent = `Solving ${knob.id} with the latest parameters · free cloud runs may take 1–2 min`;
     certificationStatus.textContent = "Checking current design…";
     certificationCard.className = "certification-card";
     scope.innerHTML = "<b>Computing.</b> The current controls are being solved by the coupled Python model.";
     return;
   }
   if (mode === "deterministic") {
-    status.textContent = "Deterministic ODE · 49 states";
+    status.textContent = `Deterministic ODE · ${metadata?.period_setting_id ?? "latest design"} updated`;
     facts.hidden = false;
     byId("realized-period").textContent = Number.isFinite(metadata?.realized_period_h)
       ? `${metadata?.period_setting_id ?? ""} · ${metadata.realized_period_h.toFixed(2)} h`
@@ -280,6 +301,12 @@ function setModelStatus(mode, metadata = null) {
       certificationCard.className = "certification-card danger";
     }
     scope.innerHTML = "<b>Deterministic model.</b> These curves were solved from the existing 8-state oscillator, 38-state counter, and 3-state shutdown equations. The diagnostic states separately whether the selected K setting lies inside the certified A→B window.";
+    return;
+  }
+  if (mode === "error") {
+    status.textContent = "Model update failed · retry available";
+    indicator.textContent = "The latest controls were not solved · run the latest design again";
+    scope.innerHTML = "<b>Update failed.</b> The visible curves are a browser preview until the deterministic request succeeds.";
     return;
   }
   status.textContent = "Browser surrogate · fallback";
@@ -316,53 +343,78 @@ function renderResult(result, source) {
 function renderSurrogate() {
   framePending = false;
   renderResult(simulateTempo(params), "surrogate");
+  if (serverAvailable && designDirty) setModelStatus("pending");
 }
 
-function scheduleRender() {
+function schedulePreview() {
   if (framePending) return;
   framePending = true;
   requestAnimationFrame(renderSurrogate);
-  scheduleOde();
 }
 
 async function requestOde() {
   if (!serverAvailable) return;
   if (odeInFlight) {
     odeQueued = true;
+    setModelStatus("queued");
     return;
   }
   const revision = requestRevision;
   const requestedParams = { ...params };
+  let requestFailed = false;
   odeInFlight = true;
   setModelStatus("loading");
   try {
     const response = await fetch("/api/simulate", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      cache: "no-store",
       body: JSON.stringify(requestedParams),
     });
     if (!response.ok) throw new Error(`ODE request failed: ${response.status}`);
     const result = await response.json();
     if (revision !== requestRevision) return;
+    designDirty = false;
     renderResult(result, "deterministic");
   } catch (error) {
     if (revision !== requestRevision) return;
     console.warn(error);
-    setModelStatus("surrogate");
+    requestFailed = true;
+    designDirty = true;
+    setModelStatus("error");
   } finally {
     odeInFlight = false;
     if (odeQueued) {
       odeQueued = false;
       requestOde();
+    } else if (designDirty && !requestFailed) {
+      setModelStatus("pending");
     }
   }
 }
 
-function scheduleOde() {
-  requestRevision += 1;
+function scheduleOde(delay = 180) {
   clearTimeout(odeTimer);
   if (!serverAvailable) return;
-  odeTimer = setTimeout(requestOde, 550);
+  if (odeInFlight) {
+    odeQueued = true;
+    setModelStatus("queued");
+    return;
+  }
+  odeTimer = setTimeout(requestOde, delay);
+}
+
+function markDesignChanged() {
+  requestRevision += 1;
+  designDirty = true;
+  clearTimeout(odeTimer);
+  schedulePreview();
+  if (serverAvailable) setModelStatus("pending");
+}
+
+function scheduleRender() {
+  markDesignChanged();
+  scheduleOde();
 }
 
 async function connectModelServer() {
@@ -472,8 +524,9 @@ CONTROL_IDS.forEach((id) => {
     byId(OUTPUT_IDS[id]).textContent = FORMATTERS[id](value);
     setRangeFill(input);
     setPresetLabel("custom");
-    scheduleRender();
+    markDesignChanged();
   });
+  input.addEventListener("change", () => scheduleOde());
 });
 
 document.querySelectorAll(".segmented button").forEach((button) => {
@@ -527,6 +580,10 @@ byId("tuning-guide-toggle").addEventListener("click", () => {
 byId("preset-select").addEventListener("change", (event) => setPreset(event.target.value));
 byId("reset-button").addEventListener("click", () => {
   setPreset("tempo");
+});
+byId("run-model-button").addEventListener("click", () => {
+  if (serverAvailable) scheduleOde(0);
+  else connectModelServer();
 });
 
 const aboutDialog = byId("about-dialog");

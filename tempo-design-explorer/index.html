@@ -172,7 +172,10 @@
           <div>
             <p class="eyebrow">Live system response</p>
             <h2>Oscillation → counting → shutdown</h2>
-            <span class="update-indicator" id="update-indicator" role="status" aria-live="polite" hidden>Updating model…</span>
+            <div class="model-update-row">
+              <span class="update-indicator" id="update-indicator" role="status" aria-live="polite" hidden>Updating model…</span>
+              <button class="model-run-button" id="run-model-button" type="button" hidden>Run latest design</button>
+            </div>
           </div>
           <div class="time-control">
             <div class="time-control-copy">
