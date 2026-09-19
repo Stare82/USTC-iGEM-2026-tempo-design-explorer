@@ -9,5 +9,5 @@ services:
     healthCheckPath: /api/health
     autoDeployTrigger: off
     numInstances: 1
-    maxShutdownDelaySeconds: 60
+
 
