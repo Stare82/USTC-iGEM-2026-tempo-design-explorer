@@ -10,6 +10,14 @@ if errorlevel 1 (
   exit /b 1
 )
 
+python -c "import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)" >nul 2>nul
+if errorlevel 1 (
+  echo Python 3.11 or newer is required. Python 3.13.9 is recommended.
+  python --version
+  pause
+  exit /b 1
+)
+
 if not exist ".venv\Scripts\python.exe" (
   echo Creating the TEMPO virtual environment...
   python -m venv .venv

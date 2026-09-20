@@ -597,7 +597,7 @@ byId("export-button").addEventListener("click", () => {
     model_metadata: lastResult?.metadata ?? null,
     scientific_notice: isDeterministic
       ? "Solved with the existing TEMPO Python ODE pipeline. Deterministic A→B certification applies only where the exported metadata explicitly marks it true."
-      : "Interactive calibrated surrogate; start the local model server for reportable ODE output.",
+      : "Interactive browser approximation; start the local model server for reportable ODE output.",
     design_parameters: { ...params },
     model_parameter_mapping: PARAMETER_MAP,
     evaluation: lastResult.evaluation,

@@ -35,9 +35,11 @@ def run_installation_test() -> dict[str, object]:
         APP_ROOT / "src" / "app.js",
         APP_ROOT / "backend" / "model_adapter.py",
         APP_ROOT / "public" / "tempo-logo.png",
+        APP_ROOT / "docs" / "PLATFORM_ARCHITECTURE.md",
         ROOT / "oscillator" / "code" / "Mechanistic_ODE_Global_Sensitivity_Analysis.py",
         ROOT / "oscillator" / "code" / "Shared_PLtetO1_Period_Knob_Design_Map.py",
         ROOT / "rdfmodel_new" / "model" / "zhao_core.py",
+        ROOT / "rdfmodel_new" / "docs" / "week4_unloaded" / "unloaded_C31_translation_trajectory.csv",
         ROOT / "shutdown_model" / "shutdown_core.py",
         EXAMPLE,
     )

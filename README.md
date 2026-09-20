@@ -146,7 +146,22 @@ TEMPO automatically selects a free local port and prints the new URL.
 ## Verify an installation
 
 Run the deterministic installation test before using the package for a report or
-demonstration:
+demonstration. If you used the one-click launcher, run the test with its isolated
+environment:
+
+Windows:
+
+```powershell
+.venv\Scripts\python.exe test_installation.py
+```
+
+macOS or Linux:
+
+```bash
+.venv/bin/python test_installation.py
+```
+
+If the virtual environment is already activated, the shorter command is:
 
 ```bash
 python test_installation.py

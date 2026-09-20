@@ -19,9 +19,11 @@ def _check_package_layout() -> None:
         WEB_APP / "src" / "app.js",
         WEB_APP / "backend" / "model_adapter.py",
         WEB_APP / "public" / "tempo-logo.png",
+        WEB_APP / "docs" / "PLATFORM_ARCHITECTURE.md",
         ROOT / "oscillator" / "code" / "Mechanistic_ODE_Global_Sensitivity_Analysis.py",
         ROOT / "oscillator" / "code" / "Shared_PLtetO1_Period_Knob_Design_Map.py",
         ROOT / "rdfmodel_new" / "model" / "zhao_core.py",
+        ROOT / "rdfmodel_new" / "docs" / "week4_unloaded" / "unloaded_C31_translation_trajectory.csv",
         ROOT / "shutdown_model" / "shutdown_core.py",
     )
     missing = [path.relative_to(ROOT) for path in required if not path.is_file()]

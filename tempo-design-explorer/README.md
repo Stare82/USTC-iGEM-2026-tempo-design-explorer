@@ -1,6 +1,6 @@
-# TEMPO Design Explorer — MVP prototype
+# TEMPO Design Explorer — local application
 
-这是 TEMPO Modeling Platform 的单页面交互原型。它把现有的三部分模型组织为一条连续设计链：
+这是 TEMPO Modeling Platform 的本地交互应用。它把现有的三部分模型组织为一条连续设计链：
 
 `Oscillator → C31 / Integrase pulse → Recombinase counter → Timed output / Shutdown`
 
@@ -8,7 +8,7 @@
 
 - Basic / Advanced 两层参数控制；
 - 五组设计预设与一键恢复默认值；
-- Input / protein、PB/LR counter state、output / sRNA 三组实时曲线；
+- Input / protein、PB/LR counter state、output / sRNA 三组同步曲线；
 - one-pulse-one-flip、恢复时间、leakage、输出时间窗等自动评价；
 - 失败原因解释，而不只显示状态颜色；
 - JSON 设计摘要导出；
@@ -52,7 +52,7 @@ run_windows.bat
 python app.py
 ```
 
-首次 ODE 求解通常需要数秒；同一组参数会由服务端缓存。
+首次完整 ODE 求解在普通笔记本上可能需要 1–2 分钟，具体取决于处理器；同一组参数会由服务端缓存。
 
 ## 目录
 

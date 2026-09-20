@@ -9,6 +9,12 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 1
 fi
 
+if ! python3 -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 11) else 1)' >/dev/null 2>&1; then
+  echo "Python 3.11 or newer is required. Python 3.13.9 is recommended." >&2
+  python3 --version >&2
+  exit 1
+fi
+
 if [ ! -x ".venv/bin/python" ]; then
   echo "Creating the TEMPO virtual environment..."
   python3 -m venv .venv
