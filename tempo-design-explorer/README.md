@@ -38,18 +38,18 @@
 
 ## 普通浏览器启动
 
-Windows 下直接双击：
+推荐从仓库根目录双击：
 
 ```text
-start_platform.bat
+run_windows.bat
 ```
 
-它会启动本地模型服务并打开 `http://127.0.0.1:4173/`。不要直接双击 `index.html`：普通浏览器会限制 `file://` 页面加载 ES modules，而且这种方式无法调用 Python ODE。
+本目录中的 `start_platform.bat` 也会转交给同一个根目录启动器。启动器会创建独立 `.venv`、安装根目录 `requirements.txt` 中锁定的依赖，并打开本地页面。不要直接双击 `index.html`：普通浏览器会限制 `file://` 页面加载 ES modules，而且这种方式无法调用 Python ODE。
 
-也可以在本目录手动运行：
+也可以在仓库根目录手动运行：
 
 ```powershell
-python server.py --open
+python app.py
 ```
 
 首次 ODE 求解通常需要数秒；同一组参数会由服务端缓存。

@@ -1,0 +1,12 @@
+{
+  "hours": 36,
+  "period": 3,
+  "pulseWidth": 2.5,
+  "promoter": 1.0,
+  "oscRbs": 1.0,
+  "c31": 0.52,
+  "degradation": 12.0,
+  "rdf": 1.1,
+  "bm3r1": 1.0,
+  "srna": 0.06
+}

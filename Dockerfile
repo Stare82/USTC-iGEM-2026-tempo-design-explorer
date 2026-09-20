@@ -7,8 +7,8 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY tempo-design-explorer/requirements.txt /app/tempo-design-explorer/requirements.txt
-RUN pip install --no-cache-dir -r /app/tempo-design-explorer/requirements.txt
+COPY requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r /app/requirements.txt
 
 # The web application and only the scientific source files required at runtime.
 COPY tempo-design-explorer /app/tempo-design-explorer
@@ -23,4 +23,3 @@ USER tempo
 EXPOSE 10000
 
 CMD ["sh", "-c", "python tempo-design-explorer/server.py --host 0.0.0.0 --port ${PORT:-10000}"]
-

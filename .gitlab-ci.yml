@@ -1,4 +1,4 @@
-image: python:3.13-slim
+image: python:3.13.9-slim
 
 stages:
   - test
@@ -16,8 +16,7 @@ model-smoke-test:
   stage: test
   before_script:
     - python -m pip install --upgrade pip
-    - python -m pip install -r tempo-design-explorer/requirements.txt
+    - python -m pip install -r requirements.txt
   script:
-    - python -m py_compile tempo-design-explorer/server.py tempo-design-explorer/backend/model_adapter.py
-    - python tempo-design-explorer/tests/test_deployment_smoke.py
-
+    - python -m py_compile app.py test_installation.py tempo-design-explorer/server.py tempo-design-explorer/backend/model_adapter.py
+    - python test_installation.py

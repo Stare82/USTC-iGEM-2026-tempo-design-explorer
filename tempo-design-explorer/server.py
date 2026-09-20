@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import errno
 from functools import lru_cache
 from http import HTTPStatus
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
@@ -11,6 +12,7 @@ import os
 from pathlib import Path
 import threading
 import webbrowser
+import sys
 
 from backend.model_adapter import MODEL_VERSION, simulate_design
 
@@ -93,23 +95,47 @@ class TempoHandler(SimpleHTTPRequestHandler):
 
 
 class TempoServer(ThreadingHTTPServer):
-    allow_reuse_address = True
+    # SO_REUSEADDR can allow two Python servers to bind the same address on
+    # Windows, making the browser reach an arbitrary process. Unix keeps the
+    # usual quick-restart behavior; Windows uses an exclusive bind instead.
+    allow_reuse_address = os.name != "nt"
+    allow_reuse_port = False
     daemon_threads = True
     request_queue_size = 32
 
 
-def main() -> None:
+def main(default_open: bool = False) -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default=os.environ.get("HOST", "127.0.0.1"))
     parser.add_argument("--port", type=int, default=int(os.environ.get("PORT", "4173")))
-    parser.add_argument("--open", action="store_true", help="Open the default browser")
+    browser_group = parser.add_mutually_exclusive_group()
+    browser_group.add_argument("--open", dest="open_browser", action="store_true", help="Open the default browser")
+    browser_group.add_argument("--no-open", dest="open_browser", action="store_false", help="Do not open a browser")
+    parser.set_defaults(open_browser=default_open)
     args = parser.parse_args()
 
-    server = TempoServer((args.host, args.port), TempoHandler)
-    url = f"http://{args.host}:{args.port}/"
-    print(f"TEMPO Design Explorer: {url}", flush=True)
+    explicit_port = "PORT" in os.environ or any(
+        argument == "--port" or argument.startswith("--port=") for argument in sys.argv[1:]
+    )
+    try:
+        server = TempoServer((args.host, args.port), TempoHandler)
+    except OSError as error:
+        port_in_use = error.errno in {errno.EADDRINUSE, 10048}
+        if not port_in_use or explicit_port:
+            raise SystemExit(
+                f"TEMPO could not start on {args.host}:{args.port}: {error}. "
+                "Close the program using that port or choose another with --port."
+            ) from error
+        server = TempoServer((args.host, 0), TempoHandler)
+        print(f"Port {args.port} is already in use; selected a free local port instead.", flush=True)
+
+    actual_port = int(server.server_address[1])
+    browser_host = "127.0.0.1" if args.host in {"0.0.0.0", "::"} else args.host
+    url = f"http://{browser_host}:{actual_port}/"
+    print("TEMPO Design Explorer is running at:\n", flush=True)
+    print(url, flush=True)
     print(f"Model: {MODEL_VERSION} (8 + 38 + 3 states, SciPy LSODA)", flush=True)
-    if args.open:
+    if args.open_browser:
         threading.Timer(0.6, lambda: webbrowser.open(url)).start()
     try:
         server.serve_forever()
