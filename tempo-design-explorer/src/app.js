@@ -272,7 +272,7 @@ function setModelStatus(mode, metadata = null) {
   if (mode === "loading") {
     const knob = getPeriodKnob(params.period);
     status.textContent = `Solving ${knob.id} coupled ODE…`;
-    indicator.textContent = `Solving ${knob.id} with the latest parameters · free cloud runs may take 1–2 min`;
+    indicator.textContent = `Solving ${knob.id} locally with Python/SciPy · the full coupled ODE may take 1–2 min`;
     certificationStatus.textContent = "Checking current design…";
     certificationCard.className = "certification-card";
     scope.innerHTML = "<b>Computing.</b> The current controls are being solved by the coupled Python model.";
