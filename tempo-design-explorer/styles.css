@@ -282,7 +282,10 @@ h1, .visual-header h2, .evaluation-heading h2 { margin-bottom: 0; font-size: 1.2
 .knob-library strong span { color: var(--text); font-family: var(--font-numeric); font-size: 0.84rem; font-variant-numeric: tabular-nums; font-weight: 650; }
 .knob-library small { font-size: 0.8rem; }
 .knob-library em { position: absolute; right: 0.65rem; bottom: 0.5rem; color: var(--green); font-size: 0.75rem; font-style: normal; }
+.knob-library em.uncertified { color: var(--muted); }
 .knob-library button:has(em) small { padding-right: 7.5rem; }
+.period-boundary-note { margin: .65rem 0 0; padding: .65rem .72rem; border-left: 3px solid var(--amber); color: var(--muted); background: #fff7f1; font-size: .8rem; line-height: 1.45; }
+.period-boundary-note b { color: var(--text); }
 input[type="range"] {
   --pct: 50%;
   width: 100%;

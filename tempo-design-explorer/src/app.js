@@ -67,7 +67,7 @@ const PRESET_DESCRIPTIONS = {
 };
 
 const SCORE_EXPLANATIONS = {
-  deterministic: "Reference only — not calibrated against experimental outcomes. Heuristic ODE score: 55% complete one-flip rate + 20% alternation fidelity + 12% inter-pulse Integrase recovery + 13% output closure. The pass/fail verdict still requires every core check to pass.",
+  deterministic: "Reference only — not calibrated against experimental outcomes. Heuristic ODE score: 55% complete one-flip rate + 20% alternation fidelity + 12% inter-pulse Integrase recovery + 13% output closure. The pass/fail verdict still requires every core check to pass, and a high score does not certify A→B interface compatibility.",
   surrogate: "Reference only — browser approximation, not an experimental prediction. Preview score: 47% predicted flip fidelity + 20% recovery margin + 12% leakage control + 21% output closure. Start the local server for the deterministic ODE score.",
 };
 
@@ -193,7 +193,7 @@ function renderTuningGuide(evaluation, metadata) {
 
 function renderEvaluation(evaluation, metadata, source) {
   byId("verdict-title").textContent = {
-    success: "Design passes",
+    success: "Simulation checks pass",
     warning: "Needs attention",
     danger: "Design fails",
   }[evaluation.verdict];
@@ -297,10 +297,10 @@ function setModelStatus(mode, metadata = null) {
       certificationStatus.textContent = `Use tag ${metadata.period_knob_passing_tags_h_inv.join(" / ")} h⁻¹`;
       certificationCard.className = "certification-card";
     } else {
-      certificationStatus.textContent = "Oscillator only · B not certified";
+      certificationStatus.textContent = "Oscillator robust · counter not certified";
       certificationCard.className = "certification-card danger";
     }
-    scope.innerHTML = "<b>Deterministic model.</b> These curves were solved from the existing 8-state oscillator, 38-state counter, and 3-state shutdown equations. The diagnostic states separately whether the selected K setting lies inside the certified A→B window.";
+    scope.innerHTML = "<b>Deterministic model.</b> These curves were solved from the existing 8-state oscillator, 38-state counter, and 3-state shutdown equations. Passing the simulation checks does not by itself certify A→B compatibility; certification is reported separately.";
     return;
   }
   if (mode === "error") {
@@ -596,7 +596,7 @@ byId("export-button").addEventListener("click", () => {
     result_source: isDeterministic ? "deterministic_ode" : "browser_surrogate",
     model_metadata: lastResult?.metadata ?? null,
     scientific_notice: isDeterministic
-      ? "Solved with the existing TEMPO Python ODE pipeline. Deterministic A→B certification applies only where the exported metadata explicitly marks it true."
+      ? "Solved with the existing TEMPO Python ODE pipeline. Upstream oscillation does not imply reliable downstream counting; deterministic A→B certification applies only where the exported metadata explicitly marks it true."
       : "Interactive browser approximation; start the local model server for reportable ODE output.",
     design_parameters: { ...params },
     model_parameter_mapping: PARAMETER_MAP,

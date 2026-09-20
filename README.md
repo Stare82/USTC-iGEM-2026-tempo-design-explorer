@@ -258,8 +258,11 @@ for provenance. The runtime imports only the four source files listed above.
 - A deterministic prediction is not experimental validation.
 - The heuristic score is manually weighted and provided for design comparison;
   it is not calibrated against experimental outcomes.
-- A certified oscillator setting does not automatically certify every downstream
-  counter and shutdown configuration.
+- **Upstream oscillation does not imply reliable downstream counting.** K1–K5 are
+  oscillator-robust settings, while the current deterministic counter interface
+  certifies only K4/K5 under their specified Integrase degradation tags.
+- A green **Simulation checks pass** result and the heuristic score are separate
+  from A→B certification; always read the certification card and exported metadata.
 
 For a frozen result, retain the exported Design Summary together with the Git
 commit, Python version, dependency versions, and model version.
